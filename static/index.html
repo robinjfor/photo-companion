@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Photo Companion — 照片對嘴陪伴</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <section class="stage-col">
+      <div class="brand">
+        <h1>Photo Companion</h1>
+        <small>上傳一張臉，idle 自已動，說話對嘴。對話走 Grok API。</small>
+      </div>
+      <div class="frame" id="frame">
+        <canvas id="stage" width="720" height="720"></canvas>
+        <div class="drop-hint" id="dropHint">
+          <strong>把照片拖進來</strong>
+          正面、單人、臉清楚。網格只算一次，之後都在瀏覽器裡即時變形。
+        </div>
+      </div>
+      <div class="toolbar">
+        <label class="file-btn">
+          上傳照片
+          <input id="photo" type="file" accept="image/*" />
+        </label>
+        <label class="check">
+          <input type="checkbox" id="debugMesh" /> 顯示網格
+        </label>
+        <span class="note" style="margin-left:auto">幾何變形，不是 MuseTalk。身分會留住，牙齒不會憑空長出來。</span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="tabs">
+        <button class="on" data-tab="chat">對話</button>
+        <button data-tab="cfg">設定</button>
+      </div>
+
+      <div class="panel on" id="panel-chat">
+        <div id="log"></div>
+        <div class="composer">
+          <textarea id="composer" placeholder="打字，或按聽筒用瀏覽器語音辨識…"></textarea>
+          <div class="col">
+            <button class="btn" id="mic" title="語音輸入">聽</button>
+            <button class="btn primary" id="send">送出</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-cfg">
+        <div class="settings">
+          <label>
+            <span>xAI / OpenAI 相容 API key</span>
+            <input id="apiKey" type="password" autocomplete="off" placeholder="xai-..." />
+          </label>
+          <label>
+            <span>API base URL</span>
+            <input id="baseUrl" value="https://api.x.ai/v1" />
+          </label>
+          <label>
+            <span>Chat model</span>
+            <input id="model" value="grok-4-latest" />
+          </label>
+          <label>
+            <span>Grok TTS 聲線</span>
+            <select id="voiceId">
+              <option value="eve">eve — 輕快</option>
+              <option value="ara">ara — 溫暖</option>
+              <option value="leo">leo — 沈穩</option>
+              <option value="rex">rex — 清楚</option>
+              <option value="sal">sal — 中性</option>
+            </select>
+          </label>
+          <label>
+            <span>TTS / 辨識語言</span>
+            <select id="language">
+              <option value="zh">zh</option>
+              <option value="zh-TW">zh-TW</option>
+              <option value="en">en</option>
+              <option value="ja">ja</option>
+              <option value="auto">auto</option>
+            </select>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="useBrowserTts" />
+            強制用瀏覽器語音（不花 TTS 額度，對嘴較粗）
+          </label>
+          <label>
+            <span>人設 system prompt</span>
+            <textarea id="persona"></textarea>
+          </label>
+          <button class="btn primary" id="saveSettings">儲存設定</button>
+          <button class="btn" id="clearChat">清空對話</button>
+          <p class="note">
+            金鑰只存在本機 localStorage，請求由 <code>server.py</code> 轉送，避免瀏覽器直連被 CORS 擋。
+            Chat 打 <code>/v1/chat/completions</code>，語音打 <code>/v1/tts</code>。
+            沒有金鑰時仍可上傳照片看 idle；說話會退回瀏覽器 TTS。
+          </p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <audio id="speech" preload="auto"></audio>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    document.querySelectorAll(".tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tabs button").forEach((b) => b.classList.remove("on"));
+        btn.classList.add("on");
+        document.querySelectorAll(".panel").forEach((p) => p.classList.remove("on"));
+        document.getElementById("panel-" + btn.dataset.tab).classList.add("on");
+      });
+    });
+  </script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
