@@ -1,0 +1,2 @@
+# Optional. The server is stdlib-only; these are unused.
+# Keep the file so pip users have a familiar hook.
