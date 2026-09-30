@@ -21,13 +21,11 @@ jobs:
       - name: Prepare site
         run: |
           mkdir -p _site
-          cp static/index.html static/styles.css _site/
-          if [ -f static/app.js ]; then cp static/app.js _site/; fi
-          if [ -f static/avatar.js ]; then cp static/avatar.js _site/; fi
-          if [ -f app.js ]; then cp app.js _site/; fi
-          if [ -f avatar.js ]; then cp avatar.js _site/; fi
+          cp static/index.html static/styles.css static/app.js static/avatar.js _site/
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
